@@ -2,7 +2,7 @@ class CalendarsController < ApplicationController
 
   # １週間のカレンダーと予定が表示されるページ
   def index
-    getWeek
+    get_week
     @plan = Plan.new
   end
 
@@ -18,25 +18,23 @@ class CalendarsController < ApplicationController
     params.require(:plan).permit(:date, :plan)
   end
 
-  def getWeek
-    wdays = ['(日)','(月)','(火)','(水)','(木)','(金)','(土)']
-
-    # Dateオブジェクトは、日付を保持しています。下記のように`.today.day`とすると、今日の日付を取得できます。
+  def get_week
+    wdays = ['日','月','火','水','木','金','土'] # 曜日の文字列配列
+    
     @todays_date = Date.today
-    # 例)　今日が2月1日の場合・・・ Date.today.day => 1日
-
     @week_days = []
-
+  
     plans = Plan.where(date: @todays_date..@todays_date + 6)
-
+  
     7.times do |x|
       today_plans = []
       plans.each do |plan|
         today_plans.push(plan.plan) if plan.date == @todays_date + x
       end
-      days = { :month => (@todays_date + x).month, :date => (@todays_date+x).day, :plans => today_plans}
+      # 曜日の文字列を取得し、日付と一緒に表示する
+      day_of_week = wdays[(@todays_date + x).wday]
+      days = { :month => (@todays_date + x).month, :date => (@todays_date+x).day, :day_of_week => day_of_week, :plans => today_plans }
       @week_days.push(days)
     end
-
   end
 end
